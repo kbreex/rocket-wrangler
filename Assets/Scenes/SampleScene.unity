@@ -133,6 +133,7 @@ GameObject:
   - component: {fileID: 519420032}
   - component: {fileID: 519420031}
   - component: {fileID: 519420029}
+  - component: {fileID: 519420033}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -214,6 +215,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &519420033
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 519420028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7519bec6141e4b52bad4e3f473fe547, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetFrameRate: 60
 --- !u!1 &769905527
 GameObject:
   m_ObjectHideFlags: 0
@@ -243,8 +257,8 @@ Transform:
   m_GameObject: {fileID: 769905527}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.221, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 0, y: -3, z: 0}
+  m_LocalScale: {x: 0.33, y: 0.33, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -263,6 +277,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rocketBody: {fileID: 769905535}
   rocketOn: {fileID: 21300000, guid: 8f269219e324c497dbe9d5fcf52e3388, type: 3}
+  rocketOff: {fileID: 21300000, guid: 2a4431a1b54324cc691e215f6fbc0542, type: 3}
 --- !u!212 &769905533
 SpriteRenderer:
   m_ObjectHideFlags: 0

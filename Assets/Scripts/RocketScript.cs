@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.iOS;
 
 public class RocketScript : MonoBehaviour
 { 
@@ -10,37 +11,42 @@ public class RocketScript : MonoBehaviour
     public Sprite rocketOn;
     public Sprite rocketOff;
 
-    // Create the horizontal vector
-    // https://docs.unity3d.com/ScriptReference/Vector2-ctor.html
-    public Vector2 horizontalVelocity;
+    private Touch touch;
+    private float speedModifier;
+
+    // Default Y position
+    private float defaultYPos = -3f;
+
     
 
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        // Set our horizontal velocity to zero on start
-        horizontalVelocity = new Vector2(0.3f, 0.0f);
+    void Start(){
+        // Set a speed modifier to change how sensitive the touch is
+        speedModifier = 0.004f;
+
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (Input.touchCount > 0){
+            // Assign the touch variable to the first finger that has touched the screen
+            touch = Input.GetTouch(0);
 
-        // This is just a lil tester function for making the shit move, use a and s to move it
+            if (touch.phase == TouchPhase.Moved){
+                // Increase the position of the rocket as well as turn on the engines when it is touched
+                transform.position = new Vector2(transform.position.x + touch.deltaPosition.x * speedModifier, defaultYPos);
+                rocketBody.GetComponent<SpriteRenderer>().sprite = rocketOn;
+            }
+            else if (touch.phase == TouchPhase.Stationary){
+                // Turn on the engine if they are just holding the touch there
+                rocketBody.GetComponent<SpriteRenderer>().sprite = rocketOn;
 
-        if (Input.GetKey("a")){
-            rocketBody.GetComponent<SpriteRenderer>().sprite = rocketOn;
-            rocketBody.velocity -= horizontalVelocity;
-            rocketBody.rotation -= (float) -1.5;
-        }
-        else if (Input.GetKey("d")) {
-            rocketBody.GetComponent<SpriteRenderer>().sprite = rocketOn;
-            rocketBody.velocity += horizontalVelocity;
-            rocketBody.rotation += (float) -1.5;
-        }
-        else {
-            rocketBody.GetComponent<SpriteRenderer>().sprite = rocketOff;
+            }
+            else{
+                // Set rocket sprite to be off when we are not touching it
+                rocketBody.GetComponent<SpriteRenderer>().sprite = rocketOff;
+            }
         }
     }
 }
