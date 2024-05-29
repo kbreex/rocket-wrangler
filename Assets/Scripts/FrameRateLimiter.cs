@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class FrameRateLimiter : MonoBehaviour
 {
-    public int targetFrameRate = 20;
+    public int targetFrameRate = 60;
 
     void Start()
     {
