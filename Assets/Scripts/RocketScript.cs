@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.iOS;
 
@@ -12,9 +13,11 @@ public class RocketScript : MonoBehaviour
     // Create a fuel is empty bool for the fuelbar script to access
     public bool fuelIsEmpty;
 
-
     // Create the rigidbody for the rocket so it can have collisions 
     public Rigidbody2D rocketBody;
+
+    // Create the circle collier so the ricket can detect eject mode
+    public CircleCollider2D ejectCollider;
 
     // Create the rocket sprites for on and off
     public Sprite rocketOn;
@@ -22,17 +25,24 @@ public class RocketScript : MonoBehaviour
 
     private Touch touch;
 
+    private bool isEjectMode;
+
+    private UnityEngine.Vector3 rocketPosition;
+
 
     private float speedModifier;
 
     // Default Y position
-    private float defaultYPos = -3f;
+    private readonly float defaultYPos = -3f;
     void Start(){
         // Set a speed modifier to change how sensitive the touch is
         speedModifier = 0.004f;
 
         // Fuel starts full
         fuelIsEmpty = false;
+
+        // Start ejectmode off
+        isEjectMode = false;
 
         // Set the script to a var, we set the fuelbar gameobject to have the tag fuelbar
         fuelBarScript = GameObject.FindGameObjectWithTag("FuelBar").GetComponent<FuelBarScript>();
@@ -42,7 +52,7 @@ public class RocketScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.touchCount > 0){
+        if (Input.touchCount > 0 && !isEjectMode){
             // Assign the touch variable to the first finger that has touched the screen
             touch = Input.GetTouch(0);
 
@@ -51,6 +61,14 @@ public class RocketScript : MonoBehaviour
                 transform.position = new Vector2(transform.position.x + touch.deltaPosition.x * speedModifier, defaultYPos);
                 rocketBody.GetComponent<SpriteRenderer>().sprite = rocketOn;
                 fuelBarScript.isRocketOn = true;
+                Debug.Log("DEBUG: Touch Y: " + touch.position.y);
+                // Checks that we moved the finger enough down and that it is below the correct part of the screen.
+                // TODO Make sure it is based off the screen height
+                if(touch.deltaPosition.y < -20 && touch.position.y < 700 && touch.position.y > 250){
+                    // Put rocket into eject mode
+                    isEjectMode = true;
+
+                }
             }
             else if (touch.phase == TouchPhase.Stationary && !fuelIsEmpty){
                 // Turn on the engine if they are just holding the touch there
@@ -64,5 +82,16 @@ public class RocketScript : MonoBehaviour
                 fuelBarScript.isRocketOn = false;
             }
         }
+        if (Input.touchCount > 0 && isEjectMode){
+            // Sets the rocket into eject mode
+            Debug.Log("DEBUG: INITIATIED WITH Y = " + touch.deltaPosition.y);
+
+            // Shut off rocket
+            rocketBody.GetComponent<SpriteRenderer>().sprite = rocketOff;
+            fuelBarScript.isRocketOn = false;
+
+
+        }
     }
+
 }

@@ -179,7 +179,7 @@ MonoBehaviour:
   fuel50: {fileID: 2800000, guid: 9a5c1b0ff0be346f49deade1b40e3d46, type: 3}
   fuel25: {fileID: 2800000, guid: 6895f21fe1f2a4ac08f7c0067fd79fc1, type: 3}
   fuel0: {fileID: 2800000, guid: a1c661d3c135b4a21bfc1f0790e3c8d0, type: 3}
-  fuelLevel: 100
+  fuelLevel: 1000
   fuelDegradeRate: 0.33
 --- !u!114 &100274628
 MonoBehaviour:
