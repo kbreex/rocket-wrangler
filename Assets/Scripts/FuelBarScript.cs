@@ -25,7 +25,9 @@ public class FuelBarScript : MonoBehaviour
 
     public float fuelLevel = 100;
 
-    public float fuelDegradeRate = 0.33f;
+
+    //Change back to 0.33f
+    public float fuelDegradeRate = 0.01f;
 
 
     // Start is called before the first frame update

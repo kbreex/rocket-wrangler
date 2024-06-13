@@ -89,7 +89,18 @@ public class RocketScript : MonoBehaviour
             // Shut off rocket
             rocketBody.GetComponent<SpriteRenderer>().sprite = rocketOff;
             fuelBarScript.isRocketOn = false;
+            Vector3 wp = Camera.main.ScreenToWorldPoint(Input.GetTouch(0).position);
+            Vector2 touchPos = new Vector2(wp.x, wp.y);
+            if (ejectCollider == Physics2D.OverlapPoint(touchPos))
+            {
+                Debug.Log("DEBUG: WE DID IT!");
+                isEjectMode = false;
 
+            }
+        }
+        if (Input.touchCount == 0){
+            // If there is no touch on the screen then we turn eject mode off
+            isEjectMode = false;
 
         }
     }
