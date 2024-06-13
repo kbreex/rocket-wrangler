@@ -10,7 +10,6 @@ public class FuelBarScript : MonoBehaviour
 
     public bool isRocketOn;
 
-
     public RawImage fuelBar;
 
     public Texture fuel100;
@@ -23,11 +22,11 @@ public class FuelBarScript : MonoBehaviour
 
     public Texture fuel0;
 
-    public float fuelLevel = 100;
+    public float fuelLevel;
 
 
-    //Change back to 0.33f
-    public float fuelDegradeRate = 0.01f;
+
+    public float fuelDegradeRate;
 
 
     // Start is called before the first frame update
@@ -35,6 +34,13 @@ public class FuelBarScript : MonoBehaviour
     {
         // Set the script to a var, we set the fuelbar gameobject to have the tag Player
         rocketScript = GameObject.FindGameObjectWithTag("Player").GetComponent<RocketScript>();
+
+        // Set the fuel degrade rate and fuel level
+        fuelLevel = 100;
+
+        //Change back to 0.33f
+        fuelDegradeRate = 0.0001f;
+
     }
 
     // Update is called once per frame
