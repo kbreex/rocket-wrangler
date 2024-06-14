@@ -32,8 +32,8 @@ public class FuelBarScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        // Set the script to a var, we set the fuelbar gameobject to have the tag Player
-        rocketScript = GameObject.FindGameObjectWithTag("Player").GetComponent<RocketScript>();
+        // Set the script to a var, we set the fuelbar gameobject to have the tag Rocket
+        rocketScript = GameObject.FindGameObjectWithTag("Rocket").GetComponent<RocketScript>();
 
         // Set the fuel degrade rate and fuel level
         fuelLevel = 100;
