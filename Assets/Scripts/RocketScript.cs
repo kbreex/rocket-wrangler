@@ -3,12 +3,16 @@ using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.iOS;
+using System;
 
 public class RocketScript : MonoBehaviour
 { 
 
     // Access the fuelbarscript to give it access to wether the rocket is on or not
     private FuelBarScript fuelBarScript;
+
+    // Access the player script 
+    private PlayerScript playerScript;
 
     // Create a fuel is empty bool for the fuelbar script to access
     public bool fuelIsEmpty;
@@ -28,13 +32,16 @@ public class RocketScript : MonoBehaviour
 
     private Touch touch;
 
-    // Change this back to private
+    // Bool for seeing if we are in ejectMode
     private bool isEjectMode;
+
+    // Bool for player being on the ship
+    private bool playerOnRocket;
 
     private float speedModifier;
 
     // Default Y position
-    private readonly float defaultYPos = -3f;
+    private readonly float defaultYPos = -2f;
     void Start(){
         // Set a speed modifier to change how sensitive the touch is
         speedModifier = 0.004f;
@@ -42,11 +49,15 @@ public class RocketScript : MonoBehaviour
         // Fuel starts full
         fuelIsEmpty = false;
 
-        // Start ejectmode off
+        // Start ejectmode off and player on the rocket
         isEjectMode = false;
+        playerOnRocket = true;
 
         // Set the script to a var, we set the fuelbar gameobject to have the tag fuelbar
         fuelBarScript = GameObject.FindGameObjectWithTag("FuelBar").GetComponent<FuelBarScript>();
+
+        // Set the script for the player to a var so we can eject the player when eject mode is set
+        playerScript = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerScript>();
 
         // Set the eject line to (0, 0, 0) so it is invisible
         ejectLine.SetPosition(0, Vector3.zero);
@@ -61,20 +72,23 @@ public class RocketScript : MonoBehaviour
             // Assign the touch variable to the first finger that has touched the screen
             touch = Input.GetTouch(0);
 
-            if (touch.phase == TouchPhase.Moved && !fuelIsEmpty){
+            if (touch.phase == TouchPhase.Moved && !fuelIsEmpty && playerOnRocket){
                 // Increase the position of the rocket as well as turn on the engines when it is touched
                 transform.position = new Vector2(transform.position.x + touch.deltaPosition.x * speedModifier, defaultYPos);
+                // Change the position of the player as well
+                playerScript.playerBody.position = new Vector2(transform.position.x + touch.deltaPosition.x * speedModifier, defaultYPos);
+
                 rocketBody.GetComponent<SpriteRenderer>().sprite = rocketOn;
                 fuelBarScript.isRocketOn = true;
                 // Checks that we moved the finger enough down and that it is below the correct part of the screen.
                 // TODO Make sure it is based off the screen height
-                if(touch.deltaPosition.y < -20 && touch.position.y < 700 && touch.position.y > 250){
+                if(touch.deltaPosition.y < -20 && touch.position.y < 725 && touch.position.y > 250 && playerOnRocket){
                     // Put rocket into eject mode
                     isEjectMode = true;
 
                 }
             }
-            else if (touch.phase == TouchPhase.Stationary && !fuelIsEmpty){
+            else if (touch.phase == TouchPhase.Stationary && !fuelIsEmpty && playerOnRocket){
                 // Turn on the engine if they are just holding the touch there
                 rocketBody.GetComponent<SpriteRenderer>().sprite = rocketOn;
                 fuelBarScript.isRocketOn = true;
@@ -88,7 +102,7 @@ public class RocketScript : MonoBehaviour
 
         }
         // Check if we have a finger on the screen and we are in eject mode
-        if (Input.touchCount > 0 && isEjectMode){
+        if (Input.touchCount > 0 && isEjectMode ){
             touch = Input.GetTouch(0);
 
             // Detect the touch of the 2d collider in the rocket to turn off eject mode
@@ -97,20 +111,22 @@ public class RocketScript : MonoBehaviour
             Vector3 touchInWorldPosition = Camera.main.ScreenToWorldPoint(Input.GetTouch(0).position);
             Vector2 touchWorldPos = new Vector2(touchInWorldPosition.x, touchInWorldPosition.y);
 
-            // Sets the rocket into eject mode
-            Debug.Log("DEBUG: EJECT MODE ON");
-
-
             // Shut off rocket
             rocketBody.GetComponent<SpriteRenderer>().sprite = rocketOff;
             fuelBarScript.isRocketOn = false;
 
-            Debug.Log("DEBUG: Rocket Position:" + transform.position);
-            Debug.Log("DEBUG: Finger Location: " + touchWorldPos);
-
             // Draw a line between transfor.position and touchWorldPos
             ejectLine.SetPosition(0, transform.position);
             ejectLine.SetPosition(1, touchWorldPos);
+
+            // Set the PlayerScript value of ejectAboveDefualtRocketY if the finger is above the default value of the ship
+
+            if (touchWorldPos.y > defaultYPos){
+                playerScript.ejectAboveDefualtRocketY = true;
+            }
+            else{
+                playerScript.ejectAboveDefualtRocketY = false;
+            }
 
 
             
@@ -121,7 +137,7 @@ public class RocketScript : MonoBehaviour
             // Check if they overlap with the finger
             if (ejectCollider == Physics2D.OverlapPoint(touchWorldPos))
             {
-                Debug.Log("DEBUG: EJECT MODE OFF");
+                // Turn off eject mode
                 isEjectMode = false;
                 // Set the eject line to (0, 0, 0) so it is invisible
                 ejectLine.SetPosition(0, Vector3.zero);
@@ -131,14 +147,31 @@ public class RocketScript : MonoBehaviour
 
         }
         // Check if the finger is let go and we are in eject mode
+        // This statement ejects the player
         if (Input.touchCount == 0 && isEjectMode){
-            
-            // If there is no touch on the screen and we are in eject mode then we eject the player
-            Debug.Log("DEBUG: EJECTED");
-            isEjectMode = false;
+
+            // Find the slope and distance
+            float y2Minusy1 = ejectLine.GetPosition(0).y - ejectLine.GetPosition(1).y;
+            float x2Minusx1 = ejectLine.GetPosition(0).x - ejectLine.GetPosition(1).x;
+
+            // The distance will be the speed at which the player travels
+            // Slope is used to find the result location
+            float pullSlope = y2Minusy1 / x2Minusx1;
+            double pullDistance = Math.Sqrt((y2Minusy1 * y2Minusy1) + (x2Minusx1 * x2Minusx1));
+
+
             // Set the eject line to (0, 0, 0) so it is invisible
             ejectLine.SetPosition(0, Vector3.zero);
             ejectLine.SetPosition(1, Vector3.zero);
+
+            // Send the players speed to be the strength of the pull
+            playerScript.ejectSpeed = pullDistance;
+            playerScript.ejectSlope = pullSlope;
+
+            // If there is no touch on the screen and we are in eject mode then we eject the player
+            isEjectMode = false;
+            playerOnRocket = false;
+
         }
     }
 
