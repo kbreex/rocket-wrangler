@@ -82,7 +82,7 @@ public class RocketScript : MonoBehaviour
                 fuelBarScript.isRocketOn = true;
                 // Checks that we moved the finger enough down and that it is below the correct part of the screen.
                 // TODO Make sure it is based off the screen height
-                if(touch.deltaPosition.y < -20 && touch.position.y < 725 && touch.position.y > 250 && playerOnRocket){
+                if(touch.deltaPosition.y < -20 && touch.position.y < 600 && playerOnRocket){
                     // Put rocket into eject mode
                     isEjectMode = true;
 
@@ -115,24 +115,33 @@ public class RocketScript : MonoBehaviour
             rocketBody.GetComponent<SpriteRenderer>().sprite = rocketOff;
             fuelBarScript.isRocketOn = false;
 
-            // Draw a line between transfor.position and touchWorldPos
+            // Draw a line between transfer.position and touchWorldPos
             ejectLine.SetPosition(0, transform.position);
             ejectLine.SetPosition(1, touchWorldPos);
 
-            // Set the PlayerScript value of ejectAboveDefualtRocketY if the finger is above the default value of the ship
+            // Point the rocket towards the touch world position
+            // Create the vector from touch positio to rocket position
+            Vector2 vector = touchInWorldPosition - transform.position;
 
+            // Calculate the angle in radians
+            float angleRadians = Mathf.Atan2(vector.y, vector.x);
+
+            // Convert the angle to degrees
+            float angleDegrees = angleRadians * Mathf.Rad2Deg;
+
+            Debug.Log("DEBUG: Y: " + touch.position.y);
+
+
+            transform.rotation = Quaternion.Euler(new Vector3(0, 0, angleDegrees + 90));
+
+
+            // Set the PlayerScript value of ejectAboveDefualtRocketY if the finger is above the default value of the ship
             if (touchWorldPos.y > defaultYPos){
                 playerScript.ejectAboveDefualtRocketY = true;
             }
             else{
                 playerScript.ejectAboveDefualtRocketY = false;
             }
-
-
-            
-
-            
-
 
             // Check if they overlap with the finger
             if (ejectCollider == Physics2D.OverlapPoint(touchWorldPos))
