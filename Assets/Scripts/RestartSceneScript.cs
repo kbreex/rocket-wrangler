@@ -17,6 +17,7 @@ public class RestartSceneScript : MonoBehaviour
     {
         
     }
+    // Restarts the current scene
     public void RestartScene(){
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
