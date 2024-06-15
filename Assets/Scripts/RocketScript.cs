@@ -76,7 +76,7 @@ public class RocketScript : MonoBehaviour
                 // Increase the position of the rocket as well as turn on the engines when it is touched
                 transform.position = new Vector2(transform.position.x + touch.deltaPosition.x * speedModifier, defaultYPos);
                 // Change the position of the player as well
-                playerScript.playerBody.position = new Vector2(transform.position.x + touch.deltaPosition.x * speedModifier, defaultYPos);
+                playerScript.playerBody.transform.position = new Vector2(transform.position.x + touch.deltaPosition.x * speedModifier, defaultYPos);
 
                 rocketBody.GetComponent<SpriteRenderer>().sprite = rocketOn;
                 fuelBarScript.isRocketOn = true;
@@ -143,11 +143,14 @@ public class RocketScript : MonoBehaviour
                 playerScript.ejectAboveDefualtRocketY = false;
             }
 
-            // Check if they overlap with the finger
+            // Check if they overlap with the finger, this cancels eject mode
             if (ejectCollider == Physics2D.OverlapPoint(touchWorldPos))
             {
                 // Turn off eject mode
                 isEjectMode = false;
+                // Reset rotation
+                transform.rotation = Quaternion.Euler(new Vector3(0, 0, 0));
+                
                 // Set the eject line to (0, 0, 0) so it is invisible
                 ejectLine.SetPosition(0, Vector3.zero);
                 ejectLine.SetPosition(1, Vector3.zero);
@@ -173,14 +176,18 @@ public class RocketScript : MonoBehaviour
             ejectLine.SetPosition(0, Vector3.zero);
             ejectLine.SetPosition(1, Vector3.zero);
 
+
             // Send the players speed to be the strength of the pull
-            playerScript.ejectSpeed = pullDistance;
+            playerScript.ejectSpeed = pullDistance * 2;
             playerScript.ejectSlope = pullSlope;
 
             // If there is no touch on the screen and we are in eject mode then we eject the player
             isEjectMode = false;
             playerOnRocket = false;
 
+            // Set the player to be visible
+            playerScript.isPlayerVisible = true;
+            
         }
     }
 
