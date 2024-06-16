@@ -14,6 +14,13 @@ public class RocketScript : MonoBehaviour
     // Access the player script 
     private PlayerScript playerScript;
 
+    // Access the UI info script
+    private UserInterfaceInfoScript userInterfaceInfoScript;
+
+    // Create an object for the camera
+    public Camera mainCamera;
+
+
     // Create a fuel is empty bool for the fuelbar script to access
     public bool fuelIsEmpty;
 
@@ -40,11 +47,19 @@ public class RocketScript : MonoBehaviour
 
     private float speedModifier;
 
-    // Default Y position
-    private readonly float defaultYPos = -2f;
+    private float rocketDistance;
+
+    // Declare the slow motion time variables
+    public float slowMotionTimeScale;
+
+    private float startTimeScale;
+    private float startFixedDeltaTime;
+    
     void Start(){
         // Set a speed modifier to change how sensitive the touch is
         speedModifier = 0.004f;
+
+        rocketDistance = -2f;
 
         // Fuel starts full
         fuelIsEmpty = false;
@@ -53,11 +68,20 @@ public class RocketScript : MonoBehaviour
         isEjectMode = false;
         playerOnRocket = true;
 
+        // Set the slow motion effect time scale
+        slowMotionTimeScale = 0.2f;
+        // Set the start time scale and delta time scale for slow motion effect
+        startTimeScale = Time.timeScale;
+        startFixedDeltaTime = Time.fixedDeltaTime;
+
         // Set the script to a var, we set the fuelbar gameobject to have the tag fuelbar
         fuelBarScript = GameObject.FindGameObjectWithTag("FuelBar").GetComponent<FuelBarScript>();
 
         // Set the script for the player to a var so we can eject the player when eject mode is set
         playerScript = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerScript>();
+
+        // Set the script for the user interface
+        userInterfaceInfoScript = GameObject.FindGameObjectWithTag("UserInterface").GetComponent<UserInterfaceInfoScript>();
 
         // Set the eject line to (0, 0, 0) so it is invisible
         ejectLine.SetPosition(0, Vector3.zero);
@@ -73,10 +97,24 @@ public class RocketScript : MonoBehaviour
             touch = Input.GetTouch(0);
 
             if (touch.phase == TouchPhase.Moved && !fuelIsEmpty && playerOnRocket){
-                // Increase the position of the rocket as well as turn on the engines when it is touched
-                transform.position = new Vector2(transform.position.x + touch.deltaPosition.x * speedModifier, defaultYPos);
+                
+
+                // Add this distance to the rockets UI, and to the the rockets position, player position and camera position
+                rocketDistance += 0.1f;
+                userInterfaceInfoScript.AddDistance(rocketDistance);
+
+                // Create a deltaY var that takes the rocket distance and multiplies it by delta time to make it work with slow motion
+                float deltaY = rocketDistance * Time.deltaTime;
+                Debug.Log("deltaY: " + deltaY);
+
+                // Increase the position of the rocket when it is touched
+                transform.position = new Vector2(transform.position.x + touch.deltaPosition.x * speedModifier, transform.position.y + deltaY);
                 // Change the position of the player as well
-                playerScript.playerBody.transform.position = new Vector2(transform.position.x + touch.deltaPosition.x * speedModifier, defaultYPos);
+                playerScript.playerBody.transform.position = new Vector2(transform.position.x + touch.deltaPosition.x * speedModifier, playerScript.playerBody.transform.position.y + deltaY);
+
+                // Change the position of the camaera as well. Keep the old Z value as otherwise we cannot see the player
+                // We add two because we want the rocket to be -2 of the origin and the camera when we are moving so the finger can rest in the correct position
+                mainCamera.transform.position = new Vector3(mainCamera.transform.position.x, mainCamera.transform.position.y + deltaY, mainCamera.transform.position.z);
 
                 rocketBody.GetComponent<SpriteRenderer>().sprite = rocketOn;
                 fuelBarScript.isRocketOn = true;
@@ -89,6 +127,19 @@ public class RocketScript : MonoBehaviour
                 }
             }
             else if (touch.phase == TouchPhase.Stationary && !fuelIsEmpty && playerOnRocket){
+                // Add this distance to the rockets UI
+                rocketDistance += 0.1f;
+                userInterfaceInfoScript.AddDistance(rocketDistance);
+
+                // Create a deltaY var that takes the rocket distance and multiplies it by delta time to make it work with slow motion
+                float deltaY = rocketDistance * Time.deltaTime;
+                
+                // Move the rocket, camera and player this distance
+                transform.position = new Vector2(transform.position.x + touch.deltaPosition.x * speedModifier, transform.position.y + deltaY);
+                playerScript.playerBody.transform.position = new Vector2(transform.position.x + touch.deltaPosition.x * speedModifier, playerScript.playerBody.transform.position.y + deltaY);
+                mainCamera.transform.position = new Vector3(mainCamera.transform.position.x, mainCamera.transform.position.y + deltaY, mainCamera.transform.position.z);
+
+
                 // Turn on the engine if they are just holding the touch there
                 rocketBody.GetComponent<SpriteRenderer>().sprite = rocketOn;
                 fuelBarScript.isRocketOn = true;
@@ -104,6 +155,20 @@ public class RocketScript : MonoBehaviour
         // Check if we have a finger on the screen and we are in eject mode
         if (Input.touchCount > 0 && isEjectMode ){
             touch = Input.GetTouch(0);
+
+            // Put the game into slow motion
+            // https://www.youtube.com/watch?v=Jlg0riu0XEU&t=15s
+            ToggleSlowMotion(true);
+
+            rocketDistance += 0.1f;
+            userInterfaceInfoScript.AddDistance(rocketDistance);
+            float deltaY = rocketDistance * Time.deltaTime;
+
+            // Keep moving the rocket at the current speed
+            transform.position = new Vector2(transform.position.x, transform.position.y + deltaY);
+            playerScript.playerBody.transform.position = new Vector2(playerScript.playerBody.transform.position.x, playerScript.playerBody.transform.position.y + deltaY);
+            mainCamera.transform.position = new Vector3(mainCamera.transform.position.x, mainCamera.transform.position.y + deltaY, mainCamera.transform.position.z);
+            
 
             // Detect the touch of the 2d collider in the rocket to turn off eject mode
             // https://discussions.unity.com/t/how-to-detect-a-touch-on-box-collider-2d-in-unity-4-3/87027
@@ -129,14 +194,12 @@ public class RocketScript : MonoBehaviour
             // Convert the angle to degrees
             float angleDegrees = angleRadians * Mathf.Rad2Deg;
 
-            Debug.Log("DEBUG: Y: " + touch.position.y);
-
 
             transform.rotation = Quaternion.Euler(new Vector3(0, 0, angleDegrees + 90));
 
 
             // Set the PlayerScript value of ejectAboveDefualtRocketY if the finger is above the default value of the ship
-            if (touchWorldPos.y > defaultYPos){
+            if (touchWorldPos.y > rocketDistance){
                 playerScript.ejectAboveDefualtRocketY = true;
             }
             else{
@@ -154,13 +217,18 @@ public class RocketScript : MonoBehaviour
                 // Set the eject line to (0, 0, 0) so it is invisible
                 ejectLine.SetPosition(0, Vector3.zero);
                 ejectLine.SetPosition(1, Vector3.zero);
+                ToggleSlowMotion(false);
             }
+
+
 
 
         }
         // Check if the finger is let go and we are in eject mode
         // This statement ejects the player
         if (Input.touchCount == 0 && isEjectMode){
+
+            ToggleSlowMotion(false);
 
             // Find the slope and distance
             float y2Minusy1 = ejectLine.GetPosition(0).y - ejectLine.GetPosition(1).y;
@@ -189,6 +257,21 @@ public class RocketScript : MonoBehaviour
             playerScript.isPlayerVisible = true;
             
         }
+    }
+
+    private void ToggleSlowMotion(bool isStart){
+
+        if (isStart){
+            Time.timeScale = slowMotionTimeScale;
+            Time.fixedDeltaTime = startFixedDeltaTime * slowMotionTimeScale;
+            Debug.Log("DEBUG: Slow motion engaged");
+        }
+        else{
+            Time.timeScale = startTimeScale;
+            Time.fixedDeltaTime = startFixedDeltaTime;
+            Debug.Log("DEBUG: Slow Disengaged");
+        }
+
     }
 
 }

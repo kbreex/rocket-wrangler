@@ -41,7 +41,13 @@ public class ObsticalSpawnScript : MonoBehaviour
 
     void SpawnAsteroid(){
 
+        Instantiate(asteroid, new Vector3(0, 3, 0), transform.rotation);
+
         Instantiate(asteroid, new Vector3(0, 7, 0), transform.rotation);
+
+
+        Instantiate(asteroid, new Vector3(0, 12, 0), transform.rotation);
+        Instantiate(asteroid, new Vector3(0, 16, 0), transform.rotation);
 
     }
 }
