@@ -19,7 +19,7 @@ public class ObsticalSpawnScript : MonoBehaviour
     {
         // Set timer to 0 and the spawn rate and spawn the first asteroid
         timer = 0;
-        spawnRate = 10;
+        spawnRate = 5;
 
         SpawnAsteroid();
     }
@@ -41,13 +41,7 @@ public class ObsticalSpawnScript : MonoBehaviour
 
     void SpawnAsteroid(){
 
-        Instantiate(asteroid, new Vector3(0, 3, 0), transform.rotation);
-
-        Instantiate(asteroid, new Vector3(0, 7, 0), transform.rotation);
-
-
-        Instantiate(asteroid, new Vector3(0, 12, 0), transform.rotation);
-        Instantiate(asteroid, new Vector3(0, 16, 0), transform.rotation);
+        Instantiate(asteroid, new Vector3(transform.position.x, transform.position.y, 0), transform.rotation);
 
     }
 }

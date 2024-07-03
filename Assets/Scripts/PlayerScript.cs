@@ -17,7 +17,7 @@ public class PlayerScript : MonoBehaviour
 
     public float ejectSlope;
 
-    public bool ejectAboveDefualtRocketY;
+    public bool ejectAboveRocketY;
 
     public bool isPlayerVisible;
 
@@ -32,7 +32,7 @@ public class PlayerScript : MonoBehaviour
         ejectSpeed = 0;
 
         // Set to false just in case
-        ejectAboveDefualtRocketY = false;
+        ejectAboveRocketY = false;
 
         // Set player visible to false at the start
         isPlayerVisible = false;
@@ -52,23 +52,23 @@ public class PlayerScript : MonoBehaviour
 
         // Get the direction the player ejects in from the normalized slope
         // Check the direction of the slope and if aboveDefualtRocketY is true to determine which way we normalize it 
-        if (ejectSlope > 0 && !ejectAboveDefualtRocketY){
+        if (ejectSlope > 0 && !ejectAboveRocketY){
             direction = new Vector2(1, ejectSlope).normalized;
             // Move along the direction vector
             transform.position += (float) ejectSpeed * Time.deltaTime * (Vector3)direction;
             mainCamera.transform.position += (float) ejectSpeed * Time.deltaTime * (Vector3)direction;
         }
-        else if (ejectSlope <= 0 && !ejectAboveDefualtRocketY){
+        else if (ejectSlope <= 0 && !ejectAboveRocketY){
             direction = new Vector2(-1, -ejectSlope).normalized;
             transform.position += (float) ejectSpeed * Time.deltaTime * (Vector3)direction;
             mainCamera.transform.position += (float) ejectSpeed * Time.deltaTime * (Vector3)direction;
         }
-         else if (ejectSlope > 0 && ejectAboveDefualtRocketY){
+         else if (ejectSlope > 0 && ejectAboveRocketY){
             direction = new Vector2(1, ejectSlope).normalized;
             transform.position -= (float) ejectSpeed * Time.deltaTime * (Vector3)direction;
             mainCamera.transform.position -= (float) ejectSpeed * Time.deltaTime * (Vector3)direction;
         }
-        else if (ejectSlope <= 0 && ejectAboveDefualtRocketY){
+        else if (ejectSlope <= 0 && ejectAboveRocketY){
             direction = new Vector2(-1, -ejectSlope).normalized;
             transform.position -= (float) ejectSpeed * Time.deltaTime * (Vector3)direction;
             mainCamera.transform.position -= (float) ejectSpeed * Time.deltaTime * (Vector3)direction;
