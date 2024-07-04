@@ -102,6 +102,7 @@ public class RocketScript : MonoBehaviour
     {
         // Debug spot
 
+
         // Get the rockets distance given the position of it relative to the origin
         // Add two as the rocket starts at -2
         float rocketDistance = transform.position.y + 2;
@@ -201,8 +202,7 @@ public class RocketScript : MonoBehaviour
 
             // Rotate the rocket
             transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle + 90));
-
-            // GONNA HAVE TO FIX THIS
+            
             // Set the PlayerScript value of ejectAboveRocketY if the finger is above the default value of the ship
             if (touchInWorldPosition.y > transform.position.y){
                 playerScript.ejectAboveRocketY = true;
@@ -210,6 +210,7 @@ public class RocketScript : MonoBehaviour
             else{
                 playerScript.ejectAboveRocketY = false;
             }
+
 
             // Check if they overlap with the finger, this cancels eject mode
             if (ejectCollider == Physics2D.OverlapPoint(touchWorldPos))
@@ -232,10 +233,6 @@ public class RocketScript : MonoBehaviour
             // Turn off slow motion
             ToggleSlowMotion(false);
 
-            // Set the eject line to (0, 0, 0) so it is invisible
-            ejectLine.SetPosition(0, Vector3.zero);
-            ejectLine.SetPosition(1, Vector3.zero);
-
             // Find the slope and distance
             float y2Minusy1 = ejectLine.GetPosition(0).y - ejectLine.GetPosition(1).y;
             float x2Minusx1 = ejectLine.GetPosition(0).x - ejectLine.GetPosition(1).x;
@@ -256,7 +253,10 @@ public class RocketScript : MonoBehaviour
             // Set the player to be visible
             playerScript.isPlayerVisible = true;
 
-            // Explode the rocket??
+            // Set the eject line to (0, 0, 0) so it is invisible
+            ejectLine.SetPosition(0, Vector3.zero);
+            ejectLine.SetPosition(1, Vector3.zero);
+
             
         }
     }

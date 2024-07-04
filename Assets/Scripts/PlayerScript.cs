@@ -49,6 +49,8 @@ public class PlayerScript : MonoBehaviour
             transform.localScale = Vector3.zero;
         }
 
+        
+
 
         // Get the direction the player ejects in from the normalized slope
         // Check the direction of the slope and if aboveDefualtRocketY is true to determine which way we normalize it 
