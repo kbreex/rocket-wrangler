@@ -13,6 +13,8 @@ public class ObsticalSpawnScript : MonoBehaviour
 
     public GameObject asteroid;
 
+    public float newXPosition;
+
 
     // Start is called before the first frame update
     void Start()
@@ -20,7 +22,7 @@ public class ObsticalSpawnScript : MonoBehaviour
         // Set timer to 0 and the spawn rate and spawn the first asteroid
         timer = 0;
         spawnRate = 5;
-
+        
         SpawnAsteroid();
     }
 
@@ -41,7 +43,10 @@ public class ObsticalSpawnScript : MonoBehaviour
 
     void SpawnAsteroid(){
 
-        Instantiate(asteroid, new Vector3(transform.position.x, transform.position.y, 0), transform.rotation);
+        // Find the position x of the spawner and add a random int to it to change the position of that spawned asteroid
+        newXPosition = transform.position.x + Random.Range(-1.8f, 1.8f);
+
+        Instantiate(asteroid, new Vector3(newXPosition, transform.position.y, 0), transform.rotation);
 
     }
 }
