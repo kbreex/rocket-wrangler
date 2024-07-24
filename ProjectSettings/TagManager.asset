@@ -6,6 +6,8 @@ TagManager:
   tags:
   - FuelBar
   - Rocket
+  - Obstacle
+  - UserInterface
   layers:
   - Default
   - TransparentFX
